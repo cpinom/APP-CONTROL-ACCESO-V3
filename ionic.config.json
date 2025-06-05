@@ -1,0 +1,7 @@
+{
+  "name": "APP-CONTROL-ACCESO-V3",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
