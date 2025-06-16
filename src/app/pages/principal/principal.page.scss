@@ -1,0 +1,10 @@
+section {
+    &.validaciones {
+        ion-list {
+            ion-item {
+                --min-height: 70px;
+                --padding-start: 20px
+            }
+        }
+    }
+}
