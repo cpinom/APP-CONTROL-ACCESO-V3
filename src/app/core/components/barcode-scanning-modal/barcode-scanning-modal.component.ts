@@ -1,118 +1,82 @@
-import { AfterViewInit, Component, ElementRef, inject, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+// import { Barcode, BarcodeFormat, BarcodeScanner, LensFacing, StartScanOptions } from '@capacitor-mlkit/barcode-scanning';
 import { DialogService } from '../../services/dialog.service';
-import { Barcode, BarcodeFormat, BarcodeScanner, LensFacing, StartScanOptions } from '@capacitor-mlkit/barcode-scanning';
 import { InputCustomEvent } from '@ionic/angular';
+import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
 
 @Component({
   selector: 'app-barcode-scanning-modal',
   templateUrl: './barcode-scanning-modal.component.html',
   styleUrls: ['./barcode-scanning-modal.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class BarcodeScanningModalComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  private dialog = inject(DialogService);
-  private ngZone = inject(NgZone);
-  @ViewChild('square') squareElement: ElementRef<HTMLDivElement> | undefined;
-  @Input() formats: BarcodeFormat[] = [];
-  @Input() lensFacing: LensFacing = LensFacing.Back;
+  // @Input()
+  // public formats: BarcodeFormat[] = [];
+  // @Input()
+  // public lensFacing: LensFacing = LensFacing.Back;
 
-  isTorchAvailable = false;
-  minZoomRatio: number | undefined;
-  maxZoomRatio: number | undefined;
+  @ViewChild('square')
+  public squareElement: ElementRef<HTMLDivElement> | undefined;
 
-  constructor() { }
-  ngOnInit() {
-    BarcodeScanner.isTorchAvailable().then((result) => {
-      this.isTorchAvailable = result.available;
-    });
+  public isTorchAvailable = false;
+  public minZoomRatio: number | undefined;
+  public maxZoomRatio: number | undefined;
+
+  constructor(
+    private readonly dialogService: DialogService,
+    private readonly ngZone: NgZone,
+  ) { }
+
+  public ngOnInit(): void {
   }
-  ngAfterViewInit() {
+
+  public ngAfterViewInit(): void {
     setTimeout(() => {
       this.startScan();
     }, 500);
   }
-  ngOnDestroy() {
+
+  public ngOnDestroy(): void {
     this.stopScan();
   }
-  async startScan() {
-    document.querySelector('body')?.classList.add('barcode-scanning-active');
 
-    const options: StartScanOptions = {
-      formats: this.formats,
-      lensFacing: this.lensFacing,
-    };
-
-    const squareElementBoundingClientRect = this.squareElement?.nativeElement.getBoundingClientRect();
-    const scaledRect = squareElementBoundingClientRect
-      ? {
-        left: squareElementBoundingClientRect.left * window.devicePixelRatio,
-        right: squareElementBoundingClientRect.right * window.devicePixelRatio,
-        top: squareElementBoundingClientRect.top * window.devicePixelRatio,
-        bottom: squareElementBoundingClientRect.bottom * window.devicePixelRatio,
-        width: squareElementBoundingClientRect.width * window.devicePixelRatio,
-        height: squareElementBoundingClientRect.height * window.devicePixelRatio,
-      }
-      : undefined;
-    const detectionCornerPoints = scaledRect
-      ? [
-        [scaledRect.left, scaledRect.top],
-        [scaledRect.left + scaledRect.width, scaledRect.top],
-        [scaledRect.left + scaledRect.width, scaledRect.top + scaledRect.height],
-        [scaledRect.left, scaledRect.top + scaledRect.height],
-      ]
-      : undefined;
-    const listener = await BarcodeScanner.addListener('barcodesScanned',
-      async (event: any) => {
-        this.ngZone.run(() => {
-          const cornerPoints = event.barcode.cornerPoints;
-          if (detectionCornerPoints && cornerPoints) {
-            if (
-              detectionCornerPoints[0][0] > cornerPoints[0][0] ||
-              detectionCornerPoints[0][1] > cornerPoints[0][1] ||
-              detectionCornerPoints[1][0] < cornerPoints[1][0] ||
-              detectionCornerPoints[1][1] > cornerPoints[1][1] ||
-              detectionCornerPoints[2][0] < cornerPoints[2][0] ||
-              detectionCornerPoints[2][1] < cornerPoints[2][1] ||
-              detectionCornerPoints[3][0] > cornerPoints[3][0] ||
-              detectionCornerPoints[3][1] < cornerPoints[3][1]
-            ) {
-              return;
-            }
-          }
-          listener.remove();
-          this.closeModal(event.barcode);
-        });
-      },
-    );
-    
-    await BarcodeScanner.startScan(options);
-
-    void BarcodeScanner.getMinZoomRatio().then((result) => {
-      this.minZoomRatio = result.zoomRatio;
-    });
-    void BarcodeScanner.getMaxZoomRatio().then((result) => {
-      this.maxZoomRatio = result.zoomRatio;
-    });
-  }
-  stopScan() {
-    document.querySelector('body')?.classList.remove('barcode-scanning-active');
-  }
-  setZoomRatio(event: InputCustomEvent): void {
-    if (!event.detail.value) {
-      return;
-    }
-    BarcodeScanner.setZoomRatio({
-      zoomRatio: parseInt(event.detail.value as any, 10),
-    });
-  }
-  async toggleTorch(): Promise<void> {
-    await BarcodeScanner.toggleTorch();
-  }
-  async closeModal(barcode?: Barcode): Promise<void> {
-    this.dialog.dismissModal({
+  public async closeModal(barcode?: string): Promise<void> {
+    this.dialogService.dismissModal({
       barcode: barcode,
     });
   }
 
+  // public async toggleTorch(): Promise<void> {
+  //   await BarcodeScanner.toggleTorch();
+  // }
+
+  private async startScan(): Promise<void> {
+    // Hide everything behind the modal (see `src/theme/variables.scss`)
+    document.querySelector('body')?.classList.add('barcode-scanning-active');
+
+    const result = await BarcodeScanner.startScan({ targetedFormats: [SupportedFormat.QR_CODE] });
+
+    if (result.hasContent) {
+      console.log(result.content);
+      this.closeModal(result.content)
+    }
+    else {
+      this.closeModal(undefined)
+    }
+
+  }
+
+  private async stopScan(): Promise<void> {
+    // Show everything behind the modal again
+    document.querySelector('body')?.classList.remove('barcode-scanning-active');
+
+    try {
+      await BarcodeScanner.stopScan();
+    }
+    catch { }
+  }
+
 }
+

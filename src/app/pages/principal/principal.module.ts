@@ -12,7 +12,7 @@ import { ComponentsModule } from 'src/app/core/components/barcode-scanning-modal
     FormsModule,
     IonicModule,
     PrincipalPageRoutingModule,
-    ComponentsModule
+    // ComponentsModule
   ],
   declarations: [PrincipalPage]
 })
