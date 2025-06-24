@@ -1,11 +1,11 @@
 {
-  "name": "APP-CONTROL-ACCESO-V3",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "app-control-acceso",
+  "version": "1.0.0",
+  "author": "INACAP",
+  "homepage": "https://www.inacap.cl/",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json --configuration=proxy",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

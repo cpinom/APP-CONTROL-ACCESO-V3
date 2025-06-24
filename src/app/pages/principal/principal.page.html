@@ -1,12 +1,20 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>principal</ion-title>
+    <ion-title>Control de Acceso</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  
-  <section class="validaciones">
+
+  <div class="scan-btn" role="button" (click)="validarQR()">
+    <ion-icon src="assets/icon/qr_code_scanner.svg"></ion-icon>
+    <ion-label>
+      <h2>Validar QR</h2>
+      <p>RUT o Credencial Virtual</p>
+    </ion-label>
+  </div>
+
+  <!-- <section class="validaciones">
     <ion-list inset="true">
       <ion-item detail="false" class="ion-activatable" (click)="validarAcademicos()" [disabled]="scanning">
         <ion-icon slot="start" src="assets/icon/group.svg"></ion-icon>
@@ -27,6 +35,8 @@
         <ion-icon slot="end" src="assets/icon/arrow_forward.svg"></ion-icon>
       </ion-item>
     </ion-list>
-  </section>
+  </section> -->
+
+  <p class="version">Versión - 1.0.0</p>
 
 </ion-content>

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { PrincipalPageRoutingModule } from './principal-routing.module';
 import { PrincipalPage } from './principal.page';
-import { ComponentsModule } from 'src/app/core/components/barcode-scanning-modal/components.module';
+import { ComponentsModule } from 'src/app/core/components/components.module';
 
 @NgModule({
   imports: [
@@ -12,7 +12,7 @@ import { ComponentsModule } from 'src/app/core/components/barcode-scanning-modal
     FormsModule,
     IonicModule,
     PrincipalPageRoutingModule,
-    // ComponentsModule
+    ComponentsModule
   ],
   declarations: [PrincipalPage]
 })
