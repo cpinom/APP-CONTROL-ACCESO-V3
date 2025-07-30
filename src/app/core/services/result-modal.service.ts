@@ -12,9 +12,12 @@ export class ResultModalService {
 
   constructor() { }
 
-  async showSuccessModal(durationInSeconds: number = 3): Promise<void> {
+  async showSuccessModal(data: any, durationInSeconds: number = 3): Promise<void> {
     const modal = await this.dialog.showModal({
       component: ResultModalComponent,
+      componentProps: {
+        data: data
+      },
       cssClass: 'custom-feedback-modal',
       backdropDismiss: false,
       animated: false

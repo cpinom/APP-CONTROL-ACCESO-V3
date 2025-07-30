@@ -13,6 +13,16 @@
   align-items: center;
   height: 100%;
   justify-content: center;
+
+  &.warning {
+    background-color: #ffc107;
+    color: black;
+  }
+
+  &.error {
+    background-color: #dc3545;
+    color: white;
+  }
 }
 
 .icon-success {
@@ -24,4 +34,25 @@
   font-size: 24px;
   font-weight: bold;
   margin: 0;
+}
+
+p.data {
+  margin: 10px 0 0;
+}
+
+.btn-cerrar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  // bottom: 20px;
+  // left: 0;
+  // right: 0;
+  // width: 100%;
+  // padding: 20px;
+  background-color: transparent;
+
+  ion-icon {
+    color: white;
+    font-size: 32px;
+  }
 }

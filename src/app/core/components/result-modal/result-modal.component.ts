@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { DialogService } from '../../services/dialog.service';
 
 @Component({
   selector: 'app-result-modal',
@@ -8,8 +9,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ResultModalComponent implements OnInit {
 
+  private dialog = inject(DialogService);
+  data: any;
+  
+
   constructor() { }
 
   ngOnInit() { }
+
+  cerrar() {
+    void this.dialog.dismissModal();
+  }
 
 }

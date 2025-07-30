@@ -1,9 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
+import { Platform } from '@ionic/angular';
 import { BarcodeScanningModalComponent } from 'src/app/core/components/barcode-scanning-modal/barcode-scanning-modal.component';
 import { ApiService } from 'src/app/core/services/api.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { ResultModalService } from 'src/app/core/services/result-modal.service';
+
+const TIEMPO_ESPERA = 60; // 2 segundos
 
 @Component({
   selector: 'app-principal',
@@ -16,6 +19,7 @@ export class PrincipalPage implements OnInit {
   private dialog = inject(DialogService);
   private api = inject(ApiService);
   private resultModal = inject(ResultModalService);
+  private pt = inject(Platform);
   scanning = false;
 
   constructor() { }
@@ -23,8 +27,7 @@ export class PrincipalPage implements OnInit {
   async validarQR() {
     this.scanning = true;
     const barcode = await this.escanearQR();
-    debugger
-
+    // debugger
     // const barcode = 'BEGIN:VCARD VERSION:3.0 EMAIL;TYPE=INTERNET:cpinom@inacap.cl END:VCARD';
 
 
@@ -48,12 +51,12 @@ export class PrincipalPage implements OnInit {
     const loading = await this.dialog.showLoading({ message: 'Validando...' });
 
     try {
-      const result = await this.api.validarCorreo({ correo: correo });
+      const response = await this.api.validarCorreo({ correo: correo });
 
-      loading.dismiss();
+      void loading.dismiss();
 
-      if (result.success && result.code == 200) {
-        this.resultModal.showSuccessModal(2);
+      if (response.success && response.code == 200) {
+        await this.resultModal.showSuccessModal(response.data, TIEMPO_ESPERA);
       }
       else {
         throw Error();
@@ -61,11 +64,7 @@ export class PrincipalPage implements OnInit {
     }
     catch (error) {
       void loading.dismiss();
-      this.dialog.showAlert({
-        header: 'Error',
-        message: 'No se pudo validar el acceso.',
-        buttons: ['Aceptar']
-      });
+      await this.resultModal.showSuccessModal(null, TIEMPO_ESPERA);
     }
     finally {
       loading.dismiss();
@@ -75,12 +74,12 @@ export class PrincipalPage implements OnInit {
     const loading = await this.dialog.showLoading({ message: 'Validando...' });
 
     try {
-      const result = await this.api.validarToken({ token: token });
+      const response = await this.api.validarToken({ token: token });
 
-      loading.dismiss();
+      void loading.dismiss();
 
-      if (result.success && result.code == 200) {
-        this.resultModal.showSuccessModal(2);
+      if (response.success && response.code == 200) {
+        await this.resultModal.showSuccessModal(response.data, TIEMPO_ESPERA);
       }
       else {
         throw Error();
@@ -88,17 +87,20 @@ export class PrincipalPage implements OnInit {
     }
     catch (error) {
       void loading.dismiss();
-      this.dialog.showAlert({
-        header: 'Error',
-        message: 'No se pudo validar el acceso.',
-        buttons: ['Aceptar']
-      });
+      await this.resultModal.showSuccessModal(null, TIEMPO_ESPERA);
     }
     finally {
-      loading.dismiss();
+      void loading.dismiss();
     }
   }
   async escanearQR() {
+
+    if (this.pt.is('mobileweb')) {
+      // return Promise.resolve('kL74mAiT1rOoPs2UbPCmloN1CTInjWXLVxkK1JkebRU=');
+      return Promise.resolve('HP+FGLYtEhuC4ZWH0Fe48Ugi31IafLVWfKEADsSct/4=');
+      // return Promise.resolve('BEGIN:VCARD VERSION:3.0 EMAIL;TYPE=INTERNET:cpinom@inacap.cl END:VCARD');
+    }
+
     return new Promise<string | undefined>(async resolve => {
       const element = await this.dialog.showModal({
         component: BarcodeScanningModalComponent,

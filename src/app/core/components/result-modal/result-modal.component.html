@@ -1,4 +1,35 @@
+@if (data) {
+
+@if (data.credencialValida == true) {
 <div class="modal-content">
   <ion-icon name="checkmark-circle-outline" class="icon-success"></ion-icon>
   <p class="message">Acceso válido</p>
+  @if (data) {
+  <p class="data">{{ data.nombreCompleto }}</p>
+  <p class="data">Sede - <strong>{{ data.nombreSede }}</strong></p>
+  <p class="data">Perfil - <strong>{{ data.perfil }}</strong></p>
+  }
 </div>
+}
+@else {
+<div class="modal-content warning">
+  <ion-icon name="warning-outline" class="icon-success"></ion-icon>
+  <p class="message">Credencial Expirada</p>
+  <p class="data">Solicitar mostrar Credencial desde la <br>APP INACAP</p>
+  <p class="data">Si el problema persiste solicitar <br/><b>Cédula de Identidad</b></p>
+</div>
+}
+
+}
+
+@else {
+<div class="modal-content error">
+  <ion-icon name="warning-outline" class="icon-success"></ion-icon>
+  <p class="message">Acceso no autorizado</p>
+  <p class="data">La persona no pertenece a INACAP</p>
+</div> 
+}
+
+<button (click)="cerrar()" class="btn-cerrar">
+  <ion-icon name="close-circle-outline"></ion-icon>
+</button>
