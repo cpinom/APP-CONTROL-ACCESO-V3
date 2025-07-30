@@ -22,10 +22,10 @@ export class PrincipalPage implements OnInit {
   ngOnInit() { }
   async validarQR() {
     this.scanning = true;
-    // const barcode = await this.escanearQR();
+    const barcode = await this.escanearQR();
     debugger
 
-    const barcode = 'BEGIN:VCARD VERSION:3.0 EMAIL;TYPE=INTERNET:cpinom@inacap.cl END:VCARD';
+    // const barcode = 'BEGIN:VCARD VERSION:3.0 EMAIL;TYPE=INTERNET:cpinom@inacap.cl END:VCARD';
 
 
     if (barcode) {
@@ -45,18 +45,57 @@ export class PrincipalPage implements OnInit {
     this.scanning = false;
   }
   async validarCorreo(correo: string) {
-    const result = await this.api.validarCorreo({ correo: correo });
+    const loading = await this.dialog.showLoading({ message: 'Validando...' });
 
-    if(result.success && result.code == 200) {
-      this.resultModal.showSuccessModal(2);
+    try {
+      const result = await this.api.validarCorreo({ correo: correo });
+
+      loading.dismiss();
+
+      if (result.success && result.code == 200) {
+        this.resultModal.showSuccessModal(2);
+      }
+      else {
+        throw Error();
+      }
+    }
+    catch (error) {
+      void loading.dismiss();
+      this.dialog.showAlert({
+        header: 'Error',
+        message: 'No se pudo validar el acceso.',
+        buttons: ['Aceptar']
+      });
+    }
+    finally {
+      loading.dismiss();
     }
   }
   async validarToken(token: string) {
-    const result = await this.api.validarToken({ token: token });
-    debugger
+    const loading = await this.dialog.showLoading({ message: 'Validando...' });
 
-    if(result.success && result.code == 200) {
-      this.resultModal.showSuccessModal(2);
+    try {
+      const result = await this.api.validarToken({ token: token });
+
+      loading.dismiss();
+
+      if (result.success && result.code == 200) {
+        this.resultModal.showSuccessModal(2);
+      }
+      else {
+        throw Error();
+      }
+    }
+    catch (error) {
+      void loading.dismiss();
+      this.dialog.showAlert({
+        header: 'Error',
+        message: 'No se pudo validar el acceso.',
+        buttons: ['Aceptar']
+      });
+    }
+    finally {
+      loading.dismiss();
     }
   }
   async escanearQR() {
