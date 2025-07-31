@@ -1,12 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { BarcodeScanner, SupportedFormat } from '@capacitor-community/barcode-scanner';
+import { Camera } from '@capacitor/camera';
 import { Platform } from '@ionic/angular';
+import { AppGlobal } from 'src/app/app.global';
 import { BarcodeScanningModalComponent } from 'src/app/core/components/barcode-scanning-modal/barcode-scanning-modal.component';
 import { ApiService } from 'src/app/core/services/api.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { ResultModalService } from 'src/app/core/services/result-modal.service';
 
-const TIEMPO_ESPERA = 60; // 2 segundos
+const TIEMPO_ESPERA = 5; // 2 segundos
 
 @Component({
   selector: 'app-principal',
@@ -20,6 +22,7 @@ export class PrincipalPage implements OnInit {
   private api = inject(ApiService);
   private resultModal = inject(ResultModalService);
   private pt = inject(Platform);
+  private global = inject(AppGlobal);
   scanning = false;
 
   constructor() { }
@@ -41,6 +44,7 @@ export class PrincipalPage implements OnInit {
         }
       }
       else {
+        alert(barcode);
         await this.validarToken(barcode);
       }
     }
@@ -101,6 +105,34 @@ export class PrincipalPage implements OnInit {
       // return Promise.resolve('BEGIN:VCARD VERSION:3.0 EMAIL;TYPE=INTERNET:cpinom@inacap.cl END:VCARD');
     }
 
+    let mostrarEscaneo = true;
+
+    if (this.pt.is('capacitor')) {
+      try {
+        let permission = await Camera.checkPermissions();
+
+        if (permission.camera == 'denied' || permission.camera == 'prompt') {
+          // if (this.pt.is('capacitor')) {
+          permission = await Camera.requestPermissions();
+          // }
+        }
+        if (permission.camera == 'granted') {
+          mostrarEscaneo = true;
+        }
+        else {
+          mostrarEscaneo = false;
+        }
+      }
+      catch {
+        mostrarEscaneo = false;
+      }
+    }
+
+    if (!mostrarEscaneo) {
+      await this.showAlertCamera();
+      return Promise.resolve(undefined);
+    }
+
     return new Promise<string | undefined>(async resolve => {
       const element = await this.dialog.showModal({
         component: BarcodeScanningModalComponent,
@@ -128,6 +160,24 @@ export class PrincipalPage implements OnInit {
     const tieneVersion = /VERSION:\d+\.\d+/.test(barcode);
 
     return tieneInicio && tieneFin && tieneVersion;
+  }
+  async showAlertCamera(header: string = 'Escanear Código QR') {
+    const alert = await this.dialog.showAlert({
+      header: header,
+      message: 'Vaya a "Ajustes > Aplicaciones > Control Acceso" y active el permiso de cámara.',
+      buttons: [
+        {
+          text: 'Aceptar',
+          role: 'destructive'
+        }
+      ]
+    });
+
+    return alert;
+  }
+
+  get version() {
+    return this.global.Version;
   }
 
 }
